@@ -1,0 +1,303 @@
+{
+  "name": "Article Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Article Generator",
+        "formDescription": "Your article generator.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Whats the topic?",
+              "placeholder": "Type your article topic here.",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4585ca40-5fc5-47aa-977c-7159a92b8d16",
+      "name": "Submit Topic",
+      "webhookId": "7cb1e472-3157-4685-8d60-bac9b11abcfb"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        672,
+        256
+      ],
+      "id": "fae42ad1-a88a-4a5e-b873-634533d4e292",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RZtTc5wGMCaH2y2M",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ String($json['Whats the topic?']) }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a professional article writer with exceptional research skills, a captivating writing style, and well-structured storytelling.\nYour task is to produce informative, engaging, and easy-to-read articles that keep readers interested from start to finish.\nUse clear, natural language with flawless grammar.\nInclude relevant facts, data, or references when necessary.\nEnsure each article contains:\n\nA compelling and relevant title\n\nAn opening paragraph that grabs attention and sparks curiosity\n\nA well-structured body with subheadings for clarity\n\nA strong conclusion that inspires readers to think or take action\nAdapt your writing style to match the target audience (formal, semi-formal, or casual) as requested.\nPrioritize originality and avoid plagiarism at all costs."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a8fae2f2-0b41-4e36-b7ac-fcaa6b95eeee",
+      "name": "Topic Generator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a concise and compact outline on the topic “{{ $json.output.topic }}” using the Cornell Method. Divide the outline into three sections:\n\nMain Notes: Key points, core concepts, definitions, and brief examples.\n\nCue Column: Keywords, questions, or triggers that summarize the points in the Main Notes.\n\nSummary: A short paragraph that captures the overall main idea.\n\nUse concise, clear language and include sub-points or numbering for easy reference.",
+        "options": {
+          "systemMessage": "=OUTLINE: HOW AI IS REVOLUTIONIZING CHILDREN’S EDUCATION IN INDONESIA\nMAIN NOTES\nI. Introduction: AI in the Indonesian Education Landscape\nA. Definition of AI in the context of education\nB. Current adoption status of AI in Indonesian schools\nC. Potential to transform the national education system\n\nII. 7 Revolutionary Ways AI Transforms Education in Indonesia\nA. Chatbots as Teacher Assistants\n1. Provide instant answers to students’ questions\n2. Offer 24/7 learning support\n3. Example: Ruangguru AI, Zenius AI Tutor\n\nCUE COLUMN\nWhat is the definition of AI in education?\n\nWhat is the adoption status of AI in Indonesia?\n\nHow do chatbots help teachers?\n\nSUMMARY\nAI has brought seven revolutionary changes to education in Indonesia through teacher assistant chatbots, personalized learning, data analytics, expanded access to remote areas, language assistance tools, automated grading, and inclusive education."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        0
+      ],
+      "id": "a423fb67-a8a3-4f10-9c3d-ca1365a9e1e4",
+      "name": "Outline Generator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a blog article with a maximum length of 1,500 words based on the topic and outline provided below.\n\nTopic: {{$(\"Topic Generator\").item.json.output.topic}}\n\nOutline: {{ $json.output }}\n\nCRITERIA:\n\nUse HTML elements (<h1>, <h3>, <p>, <li>, etc.) to structure and divide the article.\n\nEach section must have a strong opening paragraph and clear, well-explained information.\n\nWhere relevant, use bullet points, numbered lists, or tables to improve readability.\n\nAdd examples, facts, or supporting data to strengthen the content.\n\nUse a smooth, engaging, and easy-to-understand writing style.\n\nEnd with a strong conclusion, summarizing the main points and including a call to action for readers to comment, subscribe, or share the article.\n\nOUTPUT:\n\nPresent the output only in HTML format.\n\nMaintain a clean structure with clear headings and bullet points.\n\nThe content must be engaging, substantive, and able to keep the reader’s attention until the end.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a Blog Content Expert and SEO specialist with a writing style that is clear, practical, and educational. Your focus is on the “how,” “what,” and “why” rather than lengthy storytelling.\n\n1. Write an Engaging Introduction\nCreate a blog introduction for an education-focused audience: teachers, lecturers, school principals, supervisors, foundation leaders, and university rectors.\n\nThe introduction must grab attention (Strong Hook), explain the value they will gain (Value Proposition), and maintain a simple, friendly tone.\n\nConsider adding a short TL;DR at the end of the introduction if needed.\n\n2. Continue with Title and Article\nProvide a short, clear title relevant to the topic:\n{{ $('Topic Generator - Eudeka').item.json.output.topic }}\n\nContinue by writing the blog content according to the outline:\n{{ $json.output }}\n\nFocus on useful, actionable information (how, what, and why) that helps readers understand the topic without overly long narratives.\n\nUse active voice and avoid phrases like “delve deeper,” “explore in detail,” etc.\n\nAdapt the content to the needs of readers in managing educational institutions and digital transformation.\n\n3. Writing Style and Formatting\nMaintain a consistent tone: formal yet casual, with smooth, engaging flow so readers stay interested.\n\nEach section must have a strong opening paragraph and detailed information.\n\nAdd facts, examples, or data to support points.\n\nUse the main keyword and several LSI keyword variations (provided at the start if possible).\n\nStructure should include:\n\nArticle title (contains main keyword)\n\nMeta description (max. 160 characters, contains keyword)\n\nOpening (emotional connection + problem statement)\n\nMain discussion (solutions, data, real-world examples if available)\n\nConclusion + Call to Action (CTA)\n\nUse proper <h2> and <h3> headings.\n\nUse short paragraphs and bullet lists where helpful.\n\nInclude internal link placeholders to Eudeka.id pages/products when relevant.\n\nAdd 1–2 external links to trusted sources (e.g., Kemendikbud, UNESCO, journals).\n\nSuggest 1–2 images with alt text.\n\nMinimum article length: 1,000 words.\n\nSEO optimization for SmartCrawl plugin:\n\nKeyword in title, meta description, and first paragraph.\n\nHigh readability.\n\nInternal and external linking.\n\nClear CTA at the end.\n\nAvoid repetitive conclusions; if data/references are available, add them to increase value.\n\nEnsure smooth transitions between sections for easy reading.\n\n4. Call to Action (CTA)\nGuide readers to:\n\nVisit Eudeka’s service/product page.\n\nRegister for training/webinars.\n\nContact Eudeka’s team.\n\nOr take another relevant action.\n\n5. Expected Output\nTitle options for the article.\n\nMeta description options (max. 160 characters).\n\nMain keyword and LSI keywords used.\n\nFull article in ChatGPT canvas format.\n\nImage suggestions with alt text.\n\nInternal link suggestions (anchor text + target page).\n\nCTA suggestions for the end of the article.\n\n6. Notes\nWatch for duplication and content length.\n\nAvoid repeating sentences; vary sentence structures.\n\nUse a human, non-robotic tone.\n\nShow understanding of real challenges in the education sector.\n\nAfter completing the introduction, proceed with the article according to the above guidelines.\n\nEnsure each section follows a clear, logical structure.\n\nFocus on educating readers about the topic, how to apply it, why it matters, and what they need to know."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        0
+      ],
+      "id": "7e6f12f5-3eb1-49b8-a18a-97e9d43a0817",
+      "name": "Content Generator"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"topic\": \"California\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        256
+      ],
+      "id": "7e68d98f-e7a3-4e20-9fef-21f4be2f8282",
+      "name": "Topic"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"article\": {\n    \"title\": \"string\",\n    \"body_markdown\": \"string\",\n    \"published\": false,\n    \"series\": \"string\",\n    \"main_image\": \"string\",\n    \"description\": \"string\",\n    \"tags\": \"string\"\n  }\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        992,
+        256
+      ],
+      "id": "784ca172-ca57-4ffc-9771-9e8ab8aa6b18",
+      "name": "Content"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://docs.googleapis.com/v1/documents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{$('Content Generator').item.json.output.article.title}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        -96
+      ],
+      "id": "b69bb62b-cd97-4976-8bf8-7c12b0b7e004",
+      "name": "Create Docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "tWXyP27uXXemcO2o",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $json.documentId }}:batchUpdate?key=",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"requests\": [\n    {\n      \"insertText\": {\n        \"location\": {\n          \"index\": 1\n        },\n        \"text\": \"{{ $json.output.article.body_markdown }}\"\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1408,
+        0
+      ],
+      "id": "1c2558b8-ef14-4070-bcbf-c8278ca35b39",
+      "name": "Update Docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "tWXyP27uXXemcO2o",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Submit Topic": {
+      "main": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Outline Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Content Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic Generator": {
+      "main": [
+        [
+          {
+            "node": "Outline Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outline Generator": {
+      "main": [
+        [
+          {
+            "node": "Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Content Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Generator": {
+      "main": [
+        [
+          {
+            "node": "Create Docs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Docs": {
+      "main": [
+        [
+          {
+            "node": "Update Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "05781c31-0ff6-471b-a49a-6342c0713ab1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9f1544a652b9e744a39b46e9cfa2f64104baab2fb2c0684771d449f27d422825"
+  },
+  "id": "1CZ8PWY3TOP45Ghd",
+  "tags": []
+}
